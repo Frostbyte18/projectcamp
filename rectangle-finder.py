@@ -3,9 +3,9 @@ from random import randint
 import math
 
 #Define parameters for the set of numbers
-setSize = 10
-setDimension = 5
-square = False
+setSize = 40
+setDimension = 10
+search = "square"
 #Might need to write a function to check validity of parameters
 
 #Create an empty array to keep points in
@@ -25,47 +25,31 @@ while i < setSize:
     i -=1
   i += 1
 
-#Adding my own test array
 points = [[5,5],[5,0],[5,-5],[0,5],[0,0],[0,-5],[-5,5],[-5,0],[-5,-5]]
 
-#Make a list of lines between each point
-class Line():
-  #A class that contains two points
-  def __init__(self, point1, point2):
-    self.p1x = point1[0]
-    self.p1y = point1[1]
-    self.p2x = point2[0]
-    self.p2y = point2[1]
-    if(self.p2x - self.p1x != 0):
-      self.slope = (self.p2y - self.p1y)/(self.p2x - self.p1x)
-    else:
-      self.slope = -1
+#Finds the ditance between two points using algebraic distance formula
+def distance(p1, p2):
+  return math.sqrt((p2[0]-p1[0])**2 + (p2[1]-p1[1])**2)
 
-    self.length = math.sqrt( (self.p2x-self.p1x)**2 + (self.p2y + self.p1y)**2 )
+#Takes endpoints of two line segments and returns whether they are the same length
+def areEqualSegments(line1p1, line1p2, line2p1, line2p2):
+  return distance(line1p1, line1p2) == distance(line2p1, line2p2)
 
+answer = 0
 
-#Make lines
-def makeLine(point1, point2):
-  return Line(point1, point2)
+def checkCriteria(mode, p1, p2, p3, p4):
+  if mode == "rectangle" and areEqualSegments(p1,p2,p3,p4) and areEqualSegments(p1,p4,p2,p3) and areEqualSegments(p1,p3,p2,p4):
+      return 1
+  elif mode == "square" and areEqualSegments(p1,p2,p2,p3)and areEqualSegments(p2,p3,p3,p4)  and areEqualSegments(p3,p4,p1,p4) and areEqualSegments(p1,p3,p2,p4):
+      return 1
+  else:
+    return 0
 
-lines = []
+#Check each point against every other points
 for p1 in points:
-  #This wacky thing makes it so there is just the right number of lines. Each point only makes a line with the points that haven't yet made lines
   for p2 in points[points.index(p1)+1:]:
-    proposedLine = makeLine(p1, p2)
-    if proposedLine.slope >= 0:
-      lines.append(proposedLine)
-  #Maybe only keep line if slope is positive to save time?
-print(len(lines))
+    for p3 in points[points.index(p2)+1:]:
+      for p4 in points[points.index(p3)+1:]:
+        answer += checkCriteria(search, p1, p2, p3, p4)
 
-#Pair up lines if they have the same slope and length
-linepairs = []
-for l1 in lines:
-  for l2 in lines[lines.index(l1)+1:]:
-    if(l1.slope == l2.slope):
-      linepairs.append([l1, l2])
-
-
-
-#Match up pairs of parallel lines
-print(len(linepairs))
+print(answer)
